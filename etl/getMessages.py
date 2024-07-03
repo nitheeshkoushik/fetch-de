@@ -24,7 +24,9 @@ class SQSReceiver:
             
             messages = response['Messages']
 
-            date = response['ResponseMetadata']['HTTPHeaders']['date']
+            dateStr = response['ResponseMetadata']['HTTPHeaders']['date']
+            date = datetime.strptime(dateStr, '%a, %d %b %Y %H:%M:%S %Z')
+            
             for message in messages:
                     messageNew = json.loads(message['Body'])
                     messageNew['date'] = date
