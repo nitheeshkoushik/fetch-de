@@ -3,10 +3,13 @@ from datetime import datetime
 import json
 from botocore.exceptions import ClientError
 import configparser
+from encrypt import Encryptor
 
 class SQSReceiver:
 
     def __init__(self, config_file):
+
+        self.encryptor = Encryptor(config_file)
 
         config = configparser.ConfigParser()
         config.read(config_file)
@@ -14,6 +17,7 @@ class SQSReceiver:
         self.endpoint_url = config.get('AWS', 'endpoint_url')
         self.queue_url = config.get('AWS', 'queue_url')
         self.sqs = boto3.client('sqs', endpoint_url=self.endpoint_url)
+        
     
     def recieveMessages(self):
         messagesToDelete = []
@@ -26,10 +30,15 @@ class SQSReceiver:
 
             dateStr = response['ResponseMetadata']['HTTPHeaders']['date']
             date = datetime.strptime(dateStr, '%a, %d %b %Y %H:%M:%S %Z')
-            
+
             for message in messages:
                     messageNew = json.loads(message['Body'])
                     messageNew['date'] = date
+                    messageNew['masked_device_id'] = self.encryptor.encrypt(messageNew['device_id'])
+                    del messageNew['device_id']
+                    messageNew['masked_ip'] = self.encryptor.encrypt(messageNew['ip'])
+                    del messageNew['ip']
+
                     batchMessages.append(messageNew)
                     messagesToDelete.append(message['ReceiptHandle'])
 
