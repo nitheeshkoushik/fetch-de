@@ -1,34 +1,62 @@
 import boto3 
 from datetime import datetime
 from botocore.exceptions import ClientError
+import configparser
 
-def getMessages():
-    sqs = boto3.client('sqs', endpoint_url="http://localhost:4566")
-    allMessages = []
-    while True:
+class SQSReceiver:
+
+    def __init__(self, config_file):
+
+        config = configparser.ConfigParser()
+        config.read(config_file)
+
+        self.endpoint_url = config.get('AWS', 'endpoint_url')
+        self.queue_url = config.get('AWS', 'queue_url')
+        self.sqs = boto3.client('sqs', endpoint_url=self.endpoint_url)
+    
+    def recieveMessages(self):
+        messagesToDelete = []
+        batchMessages = []
         try:
-            messagesToDelete = []
-            response = sqs.receive_message(QueueUrl = 'http://localhost:4566/000000000000/login-queue', 
+            response = self.sqs.receive_message(QueueUrl = self.queue_url, 
                                         MaxNumberOfMessages=10)
+            
             messages = response['Messages']
+
             date = response['ResponseMetadata']['HTTPHeaders']['date']
             for message in messages:
-                allMessages.append({'body': message['Body'], 
-                                    'date': date})
-                messagesToDelete.append(message['ReceiptHandle'])
-            for msgToDel in messagesToDelete:
-                sqs.delete_message(
-                        QueueUrl= 'http://localhost:4566/000000000000/login-queue', 
-                        ReceiptHandle=msgToDel)
+                    batchMessages.append({'body': message['Body'], 
+                                        'date': date})
+                    messagesToDelete.append(message['ReceiptHandle'])
+
+            return batchMessages, messagesToDelete
+        
         except (ClientError, KeyError) as e:
-            break
+             return None, None
+    
+    def deleteMessages(self, toBeDeletedList):
+        for elem in toBeDeletedList:
+             self.sqs.delete_message(
+                QueueUrl=self.queue_url,
+                ReceiptHandle=elem
+            )
+        return None
+    
+def main():
+    config_file = '.conf'
+    sqs_manager = SQSReceiver(config_file)
+
+    allMessages = []
+    while True:
+        batchMessages, messagesToDelete = sqs_manager.recieveMessages()
+        if messagesToDelete:
+            sqs_manager.deleteMessages(messagesToDelete)
+            allMessages.extend(batchMessages)
+        else:
+             break
     return allMessages
 
 
-
-
-if __name__ == '__main__':
-    allMessages = getMessages()
-    print(allMessages)
-    # print(messages)
-    # print(len(messagesToDelete))
+if __name__ == "__main__":
+    allMessages = main()
+    print(allMessages, len(allMessages))
