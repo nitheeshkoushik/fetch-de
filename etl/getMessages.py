@@ -1,5 +1,6 @@
 import boto3 
 from datetime import datetime
+import json
 from botocore.exceptions import ClientError
 import configparser
 
@@ -25,8 +26,9 @@ class SQSReceiver:
 
             date = response['ResponseMetadata']['HTTPHeaders']['date']
             for message in messages:
-                    batchMessages.append({'body': message['Body'], 
-                                        'date': date})
+                    messageNew = json.loads(message['Body'])
+                    messageNew['date'] = date
+                    batchMessages.append(messageNew)
                     messagesToDelete.append(message['ReceiptHandle'])
 
             return batchMessages, messagesToDelete
@@ -59,4 +61,4 @@ def main():
 
 if __name__ == "__main__":
     allMessages = main()
-    print(allMessages, len(allMessages))
+    print(allMessages[0])
