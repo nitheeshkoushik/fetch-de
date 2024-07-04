@@ -21,4 +21,58 @@ record to a Postgres database that is made available via a custom postgres image
 
 ## How to run this project?
 
+1. Clone this repo
+    ```console
+    foo@bar:~$ git clone git@github.com:nitheeshkoushik/fetch-de.git
+    ```
+    ```console
+    foo@bar:~$ cd fetch-de
+    ```
+2. start the docker-compose file
+    ```console
+    fetch-de:~$ docker-compose up -d
+    ```
+3. Create a .conf for credentials
+   This is the tricky part if it was prod level string credentials in .conf file not recommended.
+   ```console
+       fetch-de:~$ echo "[AWS]" > .conf
+        echo "aws_access_key_id = test" >> .conf
+        echo "aws_secret_access_key = test" >> .conf
+        echo "region = us-east-1" >> .conf
+
+        echo "endpoint_url = http://localhost:4566" >> .conf
+        echo "queue_url = http://localhost:4566/000000000000/login-queue" >> .conf
+
+        echo "[postgresql]" >> .conf
+        echo "database = postgres" >> .conf
+        echo "user = postgres" >> .conf
+        echo "password = postgres" >> .conf
+        echo "host = localhost" >> .conf
+        echo "port = 5432" >> .conf
+    ```
+4. Install all the requirements
+   ```console
+       fetch-de:~$ pip install -r requirements.text
+    ```
+5. Check the postgres database before
+   ```console
+       fetch-de:~$ psql -d postgres -U postgres -p 5432 -h localhost -W
+    ```
+   ```console
+       fetch-de:~$ postgres=# select * from user_logins;
+    ```
+   This return a Table not found error as we did not create any tables yet.
+6. Run app/main.py
+   ```console
+       fetch-de:~$ python app/main.py
+    ```
+7. Check the postgres database after
+    ```console
+       fetch-de:~$ psql -d postgres -U postgres -p 5432 -h localhost -W
+    ```
+   ```console
+       fetch-de:~$ postgres=# select * from user_logins LIMIT 10;
+    ```
+   This returns 10 rows from the DB as creation, message rerival and insertion are perfomed by main.py 
+
 
