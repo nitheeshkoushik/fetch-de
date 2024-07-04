@@ -28,6 +28,10 @@ record to a Postgres database that is made available via a custom postgres image
     ```console
     cd fetch-de
     ```
+2. Create a virtual environment
+    ```console
+    python -m venv venv && source venv/bin/activate
+    ```
 2. start the docker-compose file
     ```console
     docker-compose up -d
