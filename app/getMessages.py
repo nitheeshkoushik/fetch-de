@@ -14,7 +14,10 @@ class SQSReceiver:
 
         self.endpoint_url = config.get('AWS', 'endpoint_url')
         self.queue_url = config.get('AWS', 'queue_url')
-        self.sqs = boto3.client('sqs', endpoint_url=self.endpoint_url, region_name='us-east-1')
+
+        self.sqs = boto3.client('sqs', aws_access_key_id = 'test', 
+                                aws_secret_access_key = 'test', 
+                                endpoint_url=self.endpoint_url, region_name='us-east-1')
         
     def hashVal(self, string):
         sha256 = hashlib.sha256()

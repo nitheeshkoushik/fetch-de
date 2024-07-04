@@ -1,6 +1,4 @@
 import psycopg2
-from datetime import datetime
-from getMessages import SQSReceiver
 import configparser
 
 class postgresInserter:
