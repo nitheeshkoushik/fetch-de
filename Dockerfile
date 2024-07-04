@@ -1,0 +1,17 @@
+FROM python 
+
+WORKDIR /app
+
+COPY ..
+
+RUN pip install requirements.txt
+
+ENV POSTGRES_DB=""
+ENV POSTGRES_USER=""
+ENV POSTGRES_PASSWORD=""
+ENV POSTGRES_HOST=""
+ENV POSTGRES_PORT=""
+ENV AWS_ENDPOINT_URL=""
+ENV AWS_QUEUE_URL=""
+
+CMD ["python", "main.py"]
