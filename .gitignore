@@ -1,2 +1,4 @@
 fetch
 .conf
+.DS_Store
+app/__pycache__/
