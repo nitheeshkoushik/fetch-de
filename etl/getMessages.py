@@ -33,7 +33,6 @@ class SQSReceiver:
 
             dateStr = response['ResponseMetadata']['HTTPHeaders']['date']
             date = datetime.strptime(dateStr, '%a, %d %b %Y %H:%M:%S %Z')
-
             for message in messages:
                 messageNew = json.loads(message['Body'])
                 messageNew['date'] = date
@@ -43,9 +42,9 @@ class SQSReceiver:
                 if 'device_id' in messageNew:
                     messageNew["masked_device_id"] = self.hashVal(messageNew['device_id'])
                     del messageNew['device_id']
-
-                batchMessages.append(messageNew)
-                messagesToDelete.append(message['ReceiptHandle'])
+                if len(messageNew) == 7:
+                    batchMessages.append(messageNew)
+                    messagesToDelete.append(message['ReceiptHandle'])
 
             return batchMessages, messagesToDelete
         
@@ -73,10 +72,3 @@ class SQSReceiver:
             else:
                 break
         return allMessages
-
-
-if __name__ == "__main__":
-    config_file = '.conf'
-    sqs = SQSReceiver(config_file)
-    allMessages = sqs.run()
-    print(allMessages, len(allMessages))
