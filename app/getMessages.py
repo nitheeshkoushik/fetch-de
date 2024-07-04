@@ -3,7 +3,11 @@ from datetime import datetime
 import json
 from botocore.exceptions import ClientError
 import configparser
-import hashlib
+
+
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad, unpad
+import base64
 
 class SQSReceiver:
 
@@ -19,10 +23,11 @@ class SQSReceiver:
                                 aws_secret_access_key = 'test', 
                                 endpoint_url=self.endpoint_url, region_name='us-east-1')
         
-    def hashVal(self, string):
-        sha256 = hashlib.sha256()
-        sha256.update(string.encode('utf-8'))
-        return sha256.hexdigest()
+    def encrypt_deterministic(self, string):
+        key = b'Sixteen byte key'
+        cipher = AES.new(key, AES.MODE_ECB)
+        ct_bytes = cipher.encrypt(pad(string.encode('utf-8'), AES.block_size))
+        return base64.b64encode(ct_bytes).decode('utf-8')
     
     def recieveMessages(self):
         messagesToDelete = []
@@ -40,10 +45,10 @@ class SQSReceiver:
                 messageNew = json.loads(message['Body'])
                 messageNew['date'] = date
                 if 'ip' in messageNew:
-                    messageNew["masked_ip"] = self.hashVal(messageNew['ip'])
+                    messageNew["masked_ip"] = self.encrypt_deterministic(messageNew['ip'])
                     del messageNew['ip']
                 if 'device_id' in messageNew:
-                    messageNew["masked_device_id"] = self.hashVal(messageNew['device_id'])
+                    messageNew["masked_device_id"] = self.encrypt_deterministic(messageNew['device_id'])
                     del messageNew['device_id']
                 if len(messageNew) == 7:
                     batchMessages.append(messageNew)
