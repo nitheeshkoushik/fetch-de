@@ -7,13 +7,14 @@ def connect():
 def createTable(cur):
     cur.execute("""
             CREATE TABLE IF NOT EXISTS user_logins(
-                user_id varchar(128),
+                user_id varchar(128) ,
                 device_type varchar(32),
                 masked_ip varchar(256),
                 masked_device_id varchar(256),
                 locale  varchar(32),
                 app_version  varchar(32),
-                create_date date
+                create_date timestamp,
+                PRIMARY KEY (user_id, create_date)
                 )
         """)
     
