@@ -13,10 +13,10 @@ record to a Postgres database that is made available via a custom postgres image
 
 
 ## Prerequesites 
-- docker -- docker install guide
+- docker 
 - docker-compose
-- pip install awscli-local
-- Psql - install
+- awscli-local
+- Psql
 
 
 ## How to run this project?
