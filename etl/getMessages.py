@@ -4,7 +4,6 @@ import json
 from botocore.exceptions import ClientError
 import configparser
 import hashlib
-from encrypt import Encryptor
 
 class SQSReceiver:
 
