@@ -1,41 +1,49 @@
 import psycopg2
-import json 
 from datetime import datetime
 from getMessages import SQSReceiver
+import configparser
 
 class postgresInserter:
-    def __init__(self, data) -> None:
+    def __init__(self, data, config_file) -> None:
         self.data = data
+        self.config_file = config_file
+        
+        config = configparser.ConfigParser()
+        config.read(self.config_file)
+        self.database_config = config['postgresql']
 
     def makeRecords(self):
         allVals = []
         for d in self.data:
-            # d['date'] = datetime.strptime(d['date'], '%Y-%m-%dT%H:%M:%S')
-
             val = tuple(d.values())
             allVals.append(val)
         return allVals
     
+
+    def connect(self):
+
+        conn = psycopg2.connect(
+                                database = self.database_config['database'],
+                                user = self.database_config['user'],
+                                password = self.database_config['password'],
+                                host = self.database_config['host'],
+                                port = self.database_config['port']
+                                )
+        return conn
+    
+
     def insert(self):
         allVals = self.makeRecords()
         sqlQuery = """
                 INSERT INTO user_logins (user_id, app_version, device_type, locale, create_date, masked_ip, masked_device_id)
                 VALUES (%s, %s, %s, %s, %s, %s, %s)
             """
-        conn = psycopg2.connect(database = "postgres", user = "postgres", password = "postgres", host = "localhost", port = "5432")
+        conn = self.connect()
         cur = conn.cursor()
         cur.executemany(sqlQuery, allVals)
         conn.commit()
         cur.close()
         conn.close()
         return None
-    
 
-if __name__ == '__main__':
-    config_file = '.conf'
-    sqs = SQSReceiver(config_file)
-    allMessages = sqs.run()
-
-    postgres = postgresInserter(allMessages)  # Wrap data in a list for consistency with makeRecords()
-    postgres.insert()
     
