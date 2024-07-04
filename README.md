@@ -56,7 +56,7 @@ record to a Postgres database that is made available via a custom postgres image
     ```
 4. Install all the requirements
    ```console
-    pip install -r requirements.text
+    pip install -r requirements.txt
     ```
 5. Check the postgres database before
    ```console
