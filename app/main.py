@@ -1,7 +1,7 @@
 from createLoginTable import TableCreator
 from getMessages import SQSReceiver
 from insertPostgres import postgresInserter
-
+import os 
 def main():
     config_file = '.conf'
 
