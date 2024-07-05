@@ -11,7 +11,7 @@ values in those fields.
 - Once you have flattened the JSON data object and masked those two fields, write each
 record to a Postgres database that is made available via a custom postgres image that has the tables pre created.
 
-
+#### The answers and decisions made were explained in an attached pdf Decisionsn&Answers.pdf
 ## Prerequesites 
 - docker 
 - docker-compose
@@ -78,5 +78,3 @@ record to a Postgres database that is made available via a custom postgres image
     select * from user_logins LIMIT 10;
     ```
    This returns 10 rows from the DB as creation, message rerival and insertion are perfomed by main.py 
-
-
