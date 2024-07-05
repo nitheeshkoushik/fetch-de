@@ -63,7 +63,7 @@ record to a Postgres database that is made available via a custom postgres image
     psql -d postgres -U postgres -p 5432 -h localhost -W
     ```
    ```console
-    postgres=# select * from user_logins;
+     select * from user_logins;
     ```
    This return a Table not found error as we did not create any tables yet.
 6. Run app/main.py
@@ -75,7 +75,7 @@ record to a Postgres database that is made available via a custom postgres image
     psql -d postgres -U postgres -p 5432 -h localhost -W
     ```
    ```console
-    postgres=# select * from user_logins LIMIT 10;
+    select * from user_logins LIMIT 10;
     ```
    This returns 10 rows from the DB as creation, message rerival and insertion are perfomed by main.py 
 
